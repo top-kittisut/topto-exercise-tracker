@@ -322,13 +322,15 @@ def add_exercise():
 #     users[username]["exercises"] = new_list
 #     return redirect(url_for("dashboard"))
 
+
 @app.route("/delete_exercise/<int:ex_id>", methods=["GET"])
 def delete_exercise(ex_id):
     if "username" not in session:
         return redirect(url_for("login"))
-
+    
     username = session["username"]
-    new_list = [ex for ex in users[username]["exercises"] if ex["id"] != ex_id]
+    # Ensure both sides are integers
+    new_list = [ex for ex in users[username]["exercises"] if int(ex["id"]) != int(ex_id)]
     users[username]["exercises"] = new_list
     save_users(users)  # Save after deletion
     return redirect(url_for("dashboard"))
