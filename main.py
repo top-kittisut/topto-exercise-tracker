@@ -47,9 +47,6 @@ def keep_alive():
             pass  # Ignore errors
         threading.Timer(600, keep_alive).start()  # Ping every 10 minutes
 
-# Start pinging when the app runs
-keep_alive()
-
 def get_week_start_end(date_obj):
     """
     Given a date, returns the start (Sunday) and end (Saturday) of that week.
@@ -362,3 +359,5 @@ def user_history(username):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))  # Use Render's port or default to 10000
     app.run(host="0.0.0.0", port=port, debug=True)
+    # Start pinging when the app runs
+    keep_alive()
