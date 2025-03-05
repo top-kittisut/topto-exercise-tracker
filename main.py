@@ -42,7 +42,7 @@ def keep_alive():
     """Ping the web service every 10 minutes to prevent Render from sleeping."""
     while True:
         try:
-            requests.get("https://topto-exercise-tracker.onrender.com")
+            requests.get("https://topto-exercise-tracker-frontend.netlify.app/")
         except Exception:
             pass  # Ignore errors
         threading.Timer(600, keep_alive).start()  # Ping every 10 minutes
