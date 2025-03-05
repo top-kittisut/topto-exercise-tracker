@@ -8,8 +8,16 @@ from firebase_admin import credentials, db
 app = Flask(__name__)
 app.secret_key = "some-random-secret"
 
+# Load Firebase credentials from an environment variable
+firebase_creds_json = os.environ.get("FIREBASE_CREDENTIALS")
+if not firebase_creds_json:
+    raise Exception("FIREBASE_CREDENTIALS environment variable not set")
+
+firebase_creds = json.loads(firebase_creds_json)
+cred = credentials.Certificate(firebase_creds)
+
 # Initialize Firebase Admin
-cred = credentials.Certificate("firebase_key.json")  # Your downloaded Firebase service account key
+# cred = credentials.Certificate("firebase_key.json")  # Your downloaded Firebase service account key
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://topto-exercise-tracker-default-rtdb.firebaseio.com/'  # Replace with your actual database URL
 })
