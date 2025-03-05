@@ -17,7 +17,6 @@ firebase_creds = json.loads(firebase_creds_json)
 cred = credentials.Certificate(firebase_creds)
 
 # Initialize Firebase Admin
-# cred = credentials.Certificate("firebase_key.json")  # Your downloaded Firebase service account key
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://topto-exercise-tracker-default-rtdb.firebaseio.com/'  # Replace with your actual database URL
 })
