@@ -297,6 +297,7 @@ def add_exercise():
 
     users[username]["exercises"].append(exercise_entry)
     save_users(users)  # Save after adding exercise
+    print("✅ User data saved successfully!") 
     return redirect(url_for("dashboard"))
 
 # @app.route("/delete_exercise/<int:ex_id>", methods=["GET"])
