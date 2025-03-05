@@ -1,7 +1,6 @@
 Flask
 gunicorn
 firebase-admin
-threading
 requests
 flask_sqlalchemy
 psycopg2
