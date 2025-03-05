@@ -1,13 +1,33 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import datetime
+import json
+import os
+
 
 app = Flask(__name__)
 app.secret_key = "some-random-secret"
 
-# In-memory user data: lost if server restarts
-users = {}
-# We'll keep a global incremental ID for each exercise so we know which exercise to delete or reference.
+DATA_FILE = "users.json"
+
+def load_users():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return {}
+    return {}
+
+def save_users(users_data):
+    with open(DATA_FILE, "w") as f:
+        json.dump(users_data, f, indent=2)
+
+
+# Load user data from the JSON file at startup
+users = load_users()
+# We'll keep a global incremental ID for each exercise.
 next_exercise_id = 1
+
 
 def get_week_start_end(date_obj):
     """
@@ -86,6 +106,20 @@ def index():
     user_list = list(users.keys())
     return render_template("index.html", user_list=user_list)
 
+# @app.route("/signup", methods=["GET", "POST"])
+# def signup():
+#     if request.method == "POST":
+#         username = request.form["username"].strip()
+#         password = request.form["password"].strip()
+#         if username in users:
+#             return "<p>Username already exists. Go back and try again.</p>"
+#         users[username] = {
+#             "password": password,
+#             "exercises": []
+#         }
+#         return redirect(url_for("login"))
+#     return render_template("signup.html")
+
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
@@ -97,6 +131,7 @@ def signup():
             "password": password,
             "exercises": []
         }
+        save_users(users)  # Save after new signup
         return redirect(url_for("login"))
     return render_template("signup.html")
 
@@ -169,6 +204,55 @@ def dashboard():
                            username=username,
                            exercises=enhanced_exercises)
 
+# @app.route("/add_exercise", methods=["POST"])
+# def add_exercise():
+#     if "username" not in session:
+#         return redirect(url_for("login"))
+
+#     global next_exercise_id
+
+#     username = session["username"]
+#     activity_type = request.form.get("activity_type", "others")
+#     note = request.form.get("note", "").strip()
+
+#     # Parse time
+#     try:
+#         time_val = int(request.form.get("time", "0"))
+#     except:
+#         time_val = 0
+
+#     # Parse calories
+#     try:
+#         calorie_val = int(request.form.get("calorie", "0"))
+#     except:
+#         calorie_val = 0
+
+#     # Parse steps
+#     try:
+#         steps_val = int(request.form.get("steps", "0"))
+#     except:
+#         steps_val = 0
+
+#     date_str = request.form.get("date", "")
+
+#     # If it's a hike, enforce steps >= 10000
+#     if activity_type == "hike" and steps_val < 10000:
+#         return "<p>If you select 'Hike', you must have at least 10,000 steps. <a href='/dashboard'>Back</a></p>"
+
+#     exercise_entry = {
+#         "id": next_exercise_id,
+#         "activity_type": activity_type,
+#         "note": note,
+#         "time": time_val,
+#         "calorie": calorie_val,
+#         "steps": steps_val,
+#         "date": date_str
+#     }
+#     next_exercise_id += 1
+
+#     users[username]["exercises"].append(exercise_entry)
+#     return redirect(url_for("dashboard"))
+
 @app.route("/add_exercise", methods=["POST"])
 def add_exercise():
     if "username" not in session:
@@ -180,19 +264,16 @@ def add_exercise():
     activity_type = request.form.get("activity_type", "others")
     note = request.form.get("note", "").strip()
 
-    # Parse time
     try:
         time_val = int(request.form.get("time", "0"))
     except:
         time_val = 0
 
-    # Parse calories
     try:
         calorie_val = int(request.form.get("calorie", "0"))
     except:
         calorie_val = 0
 
-    # Parse steps
     try:
         steps_val = int(request.form.get("steps", "0"))
     except:
@@ -200,7 +281,6 @@ def add_exercise():
 
     date_str = request.form.get("date", "")
 
-    # If it's a hike, enforce steps >= 10000
     if activity_type == "hike" and steps_val < 10000:
         return "<p>If you select 'Hike', you must have at least 10,000 steps. <a href='/dashboard'>Back</a></p>"
 
@@ -216,23 +296,36 @@ def add_exercise():
     next_exercise_id += 1
 
     users[username]["exercises"].append(exercise_entry)
+    save_users(users)  # Save after adding exercise
     return redirect(url_for("dashboard"))
+
+# @app.route("/delete_exercise/<int:ex_id>", methods=["GET"])
+# def delete_exercise(ex_id):
+#     """
+#     Delete the exercise with the given ID from the logged-in user's list.
+#     """
+#     if "username" not in session:
+#         return redirect(url_for("login"))
+
+#     username = session["username"]
+#     new_list = []
+#     for ex in users[username]["exercises"]:
+#         if ex["id"] != ex_id:
+#             new_list.append(ex)
+#     users[username]["exercises"] = new_list
+#     return redirect(url_for("dashboard"))
 
 @app.route("/delete_exercise/<int:ex_id>", methods=["GET"])
 def delete_exercise(ex_id):
-    """
-    Delete the exercise with the given ID from the logged-in user's list.
-    """
     if "username" not in session:
         return redirect(url_for("login"))
 
     username = session["username"]
-    new_list = []
-    for ex in users[username]["exercises"]:
-        if ex["id"] != ex_id:
-            new_list.append(ex)
+    new_list = [ex for ex in users[username]["exercises"] if ex["id"] != ex_id]
     users[username]["exercises"] = new_list
+    save_users(users)  # Save after deletion
     return redirect(url_for("dashboard"))
+
 
 @app.route("/scoreboard")
 def scoreboard():
