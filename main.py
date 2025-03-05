@@ -46,33 +46,26 @@ def get_week_start_end(date_obj):
     return start_of_week, end_of_week
 
 def calculate_points_for_user(username):
-    """
-    Summarize from March 2, 2025 to June 30, 2025:
-      - 1 point per day if daily "effective" minutes >= 30
-      - "Hike" with >=10000 steps => treat as 30 min
-      - max 5 points per Sunday-Saturday week
-    """
     if username not in users:
         return 0
 
+    # Use .get("exercises", []) so that if "exercises" key is missing, it defaults to an empty list.
+    exercises = users[username].get("exercises", [])
+    
     start_comp = datetime.date(2025, 3, 2)
     end_comp = datetime.date(2025, 6, 30)
 
     # Build daily total effective minutes
     date_minutes_map = {}
-    for ex in users[username]["exercises"]:
-        # Parse the date
+    for ex in exercises:
         try:
             ex_date = datetime.datetime.strptime(ex["date"], "%Y-%m-%d").date()
         except ValueError:
             continue  # skip invalid date
-        # Skip outside competition range
         if not (start_comp <= ex_date <= end_comp):
             continue
 
-        # Determine effective minutes
         if ex["activity_type"] == "hike":
-            # If hike & steps >= 10000 => 30 minutes
             if ex.get("steps", 0) >= 10000:
                 effective_minutes = 30
             else:
@@ -84,28 +77,24 @@ def calculate_points_for_user(username):
         date_minutes_map[ex_date] += effective_minutes
 
     all_dates = sorted(date_minutes_map.keys())
-
     points_total = 0
     current_week_start = None
     current_week_end = None
     day_count_in_week = 0
 
     for d in all_dates:
-        # If we're outside the current week's range, finalize the old week
         if current_week_start is None or not (current_week_start <= d <= current_week_end):
             points_total += min(day_count_in_week, 5)
             ws, we = get_week_start_end(d)
             current_week_start, current_week_end = ws, we
             day_count_in_week = 0
 
-        # If day total >= 30 => user gets 1 daily point (subject to weekly cap)
         if date_minutes_map[d] >= 30:
             day_count_in_week += 1
 
-    # Add the last partial week's points
     points_total += min(day_count_in_week, 5)
     return points_total
-
+ 
 @app.route("/")
 def index():
     # Pass the list of usernames to the front page
