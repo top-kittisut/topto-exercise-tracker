@@ -7,6 +7,7 @@ from firebase_admin import credentials, db
 
 import threading
 import requests
+import time
 
 app = Flask(__name__)
 app.secret_key = "some-random-secret"
@@ -45,7 +46,12 @@ def keep_alive():
             requests.get("https://topto-exercise-tracker-frontend.netlify.app/")
         except Exception:
             pass  # Ignore errors
-        threading.Timer(600, keep_alive).start()  # Ping every 10 minutes
+        time.sleep(600)  # Ping every 10 minutes
+
+def start_keep_alive():
+    """Start keep-alive in a background thread."""
+    thread = threading.Thread(target=keep_alive, daemon=True)
+    thread.start()
 
 def get_week_start_end(date_obj):
     """
@@ -360,4 +366,4 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))  # Use Render's port or default to 10000
     app.run(host="0.0.0.0", port=port, debug=True)
     # Start pinging when the app runs
-    keep_alive()
+    start_keep_alive()
