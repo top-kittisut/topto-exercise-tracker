@@ -2,32 +2,31 @@ from flask import Flask, render_template, request, redirect, url_for, session
 import datetime
 import json
 import os
-
+import firebase_admin
+from firebase_admin import credentials, db
 
 app = Flask(__name__)
 app.secret_key = "some-random-secret"
 
-DATA_FILE = "users.json"
+# Initialize Firebase Admin
+cred = credentials.Certificate("firebase_key.json")  # Your downloaded Firebase service account key
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://your-project-id.firebaseio.com/'  # Replace with your actual database URL
+})
 
 def load_users():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "r") as f:
-            try:
-                return json.load(f)
-            except json.JSONDecodeError:
-                return {}
-    return {}
+    ref = db.reference("/users")
+    data = ref.get()
+    return data if data is not None else {}
 
 def save_users(users_data):
-    with open(DATA_FILE, "w") as f:
-        json.dump(users_data, f, indent=2)
+    ref = db.reference("/users")
+    ref.set(users_data)
 
-
-# Load user data from the JSON file at startup
+# Load user data from Firebase at startup
 users = load_users()
 # We'll keep a global incremental ID for each exercise.
 next_exercise_id = 1
-
 
 def get_week_start_end(date_obj):
     """
