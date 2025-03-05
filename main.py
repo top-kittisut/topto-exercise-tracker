@@ -44,6 +44,8 @@ def keep_alive():
     while True:
         try:
             requests.get("https://topto-exercise-tracker-frontend.netlify.app/")
+            requests.get("https://topto-exercise-tracker.onrender.com")
+            print("refreseh render")
         except Exception:
             pass  # Ignore errors
         time.sleep(600)  # Ping every 10 minutes
