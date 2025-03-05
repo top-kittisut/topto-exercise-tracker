@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block body %}
+<h2>My Dashboard</h2>
+<p>Hello, {{ username }}! Below are your exercise entries.</p>
+
+<!-- Form to add new exercise -->
+<h3>Add Exercise</h3>
+<form method="POST" action="{{ url_for('add_exercise') }}">
+  <label>Activity Type:</label>
+  <select name="activity_type">
+    <option value="weight training">Weight Training</option>
+    <option value="cardio">Cardio</option>
+    <option value="interval training">Interval Training</option>
+    <option value="hike">Hike</option>
+    <option value="others">Others</option>
+  </select>
+  <br><br>
+
+  <label>Note:</label><br>
+  <textarea name="note" rows="2" cols="30"></textarea>
+  <br><br>
+
+  <label>Time (minutes) [required for non-hike activities ≥ 30 if you want it to count]:
+    <input type="number" name="time" min="0" value="0">
+  </label>
+  <br><br>
+
+  <label>Calorie (optional):
+    <input type="number" name="calorie" min="0" value="0">
+  </label>
+  <br><br>
+
+  <label>Steps (Hike requires ≥ 10000):
+    <input type="number" name="steps" min="0" value="0">
+  </label>
+  <br><br>
+
+  <label>Date (required):
+    <input type="date" name="date" required>
+  </label>
+  <br><br>
+
+  <input type="submit" value="Add Exercise">
+</form>
+
+<!-- Display user's exercises -->
+<h3>Your Exercises</h3>
+<table border="1" cellpadding="5" cellspacing="0">
+  <tr>
+    <th>Date</th>
+    <th>Activity Type</th>
+    <th>Time (min)</th>
+    <th>Calories</th>
+    <th>Steps</th>
+    <th>Note</th>
+    <th>Daily Point</th>
+    <th>Action</th>
+  </tr>
+  {% for ex in exercises %}
+  <tr>
+    <td>{{ ex.date }}</td>
+    <td>{{ ex.activity_type }}</td>
+    <td>{{ ex.time }}</td>
+    <td>{{ ex.calorie }}</td>
+    <td>{{ ex.steps }}</td>
+    <td>{{ ex.note }}</td>
+    <!-- daily_point shows 1 if the date total ≥ 30, otherwise 0 -->
+    <td>{{ ex.daily_point }}</td>
+    <td>
+      <a href="{{ url_for('delete_exercise', ex_id=ex.id) }}">
+        Delete
+      </a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

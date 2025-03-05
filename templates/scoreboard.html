@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block body %}
+<h2>Scoreboard</h2>
+<table border="1" cellpadding="5" cellspacing="0">
+  <tr>
+    <th>Rank</th>
+    <th>Username</th>
+    <th>Points</th>
+    <th>View History</th>
+  </tr>
+  {% for user_info in scoreboard %}
+  <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ user_info["username"] }}</td>
+    <td>{{ user_info["points"] }}</td>
+    <td>
+      <a href="{{ url_for('user_history', username=user_info['username']) }}">
+        View
+      </a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

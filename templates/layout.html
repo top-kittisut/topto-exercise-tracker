@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Workout Competition</title>
+  </head>
+  <body>
+    <h1>Workout Competition</h1>
+    <div>
+      {% if 'username' in session %}
+        Logged in as {{ session['username'] }} |
+        <a href="{{ url_for('logout') }}">Logout</a> |
+        <a href="{{ url_for('dashboard') }}">My Dashboard</a> |
+        <a href="{{ url_for('scoreboard') }}">Scoreboard</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Login</a> |
+        <a href="{{ url_for('signup') }}">Sign Up</a> |
+        <a href="{{ url_for('scoreboard') }}">Scoreboard</a>
+      {% endif %}
+    </div>
+    <hr>
+    {% block body %}{% endblock %}
+  </body>
+</html>

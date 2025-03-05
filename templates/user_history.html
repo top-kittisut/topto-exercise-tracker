@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block body %}
+<h2>Exercise History for {{ viewed_user }}</h2>
+
+{% if exercises %}
+<table border="1" cellpadding="5" cellspacing="0">
+  <tr>
+    <th>Date</th>
+    <th>Activity</th>
+    <th>Time (min)</th>
+    <th>Calories</th>
+    <th>Note</th>
+  </tr>
+  {% for ex in exercises %}
+  <tr>
+    <td>{{ ex.date }}</td>
+    <td>{{ ex.activity_type }}</td>
+    <td>{{ ex.time }}</td>
+    <td>{{ ex.calorie }}</td>
+    <td>{{ ex.note }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No exercises logged yet for this user.</p>
+{% endif %}
+{% endblock %}
