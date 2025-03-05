@@ -5,6 +5,9 @@ import os
 import firebase_admin
 from firebase_admin import credentials, db
 
+import threading
+import requests
+
 app = Flask(__name__)
 app.secret_key = "some-random-secret"
 
@@ -34,6 +37,18 @@ def save_users(users_data):
 users = load_users()
 # We'll keep a global incremental ID for each exercise.
 next_exercise_id = 1
+
+def keep_alive():
+    """Ping the web service every 10 minutes to prevent Render from sleeping."""
+    while True:
+        try:
+            requests.get("https://topto-exercise-tracker.onrender.com")
+        except Exception:
+            pass  # Ignore errors
+        threading.Timer(600, keep_alive).start()  # Ping every 10 minutes
+
+# Start pinging when the app runs
+keep_alive()
 
 def get_week_start_end(date_obj):
     """
