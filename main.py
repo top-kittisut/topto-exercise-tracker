@@ -11,7 +11,7 @@ app.secret_key = "some-random-secret"
 # Initialize Firebase Admin
 cred = credentials.Certificate("firebase_key.json")  # Your downloaded Firebase service account key
 firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://your-project-id.firebaseio.com/'  # Replace with your actual database URL
+    'databaseURL': 'https://topto-exercise-tracker-default-rtdb.firebaseio.com/'  # Replace with your actual database URL
 })
 
 def load_users():
